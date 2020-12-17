@@ -58,9 +58,13 @@
             max-width="350"
           >
             <v-card-text class="text-center title">
-              User info:
-              <br />
-              {{ repair.userFirstName }} {{ repair.userLastName }}
+              Assign Employees:
+              <div
+                v-for="repairUser in repair.repairUsers"
+                :key="repairUser.userId"
+              >
+                {{ repairUser.userFirstName + " " + repairUser.userLastName }}
+              </div>
             </v-card-text>
           </v-card>
         </v-hover>
@@ -68,9 +72,8 @@
     </v-row>
 
     <v-row>
-      <v-col cols="12" sm="4">button update customer </v-col>
+      <v-col cols="12" sm="4"></v-col>
       <v-col cols="12" sm="4"> <PopupEvaluateRepairCost /> </v-col>
-      <v-col cols="12" sm="4">button update user</v-col>
     </v-row>
 
     <v-row>
@@ -85,7 +88,6 @@
           >
             <v-card-text class="text-center title">
               Description:
-              <br />
               <br />
               {{ repair.description }}
             </v-card-text>
@@ -102,13 +104,15 @@
             height="350"
             max-width="500"
           >
-            <v-card-text class="text-center title"> Used Parts: </v-card-text>
-            <v-card-text
-              class="text-center title"
-              v-for="part in repair.partsUsedInRepair"
-              :key="part.id"
-            >
-              {{ part.name }} - {{ part.quantity }}
+            <v-card-text class="text-center title">
+              Used Parts:
+              <div
+                class="text-center title"
+                v-for="part in repair.partsUsedInRepair"
+                :key="part.id"
+              >
+                {{ part.name }} - {{ part.quantity }}
+              </div>
             </v-card-text>
           </v-card>
         </v-hover>
@@ -123,13 +127,15 @@
             height="350"
             max-width="500"
           >
-            <v-card-text class="text-center title"> Repair Types: </v-card-text>
-            <v-card-text
-              class="text-center title"
-              v-for="repairType in repair.repairTypes"
-              :key="repairType.id"
-            >
-              {{ repairType.name }}
+            <v-card-text class="text-center title">
+              Repair Types:
+              <div
+                class="text-center title"
+                v-for="repairType in repair.repairTypes"
+                :key="repairType.id"
+              >
+                {{ repairType.name }}
+              </div>
             </v-card-text>
           </v-card>
         </v-hover>
@@ -152,7 +158,7 @@ export default {
     PopupUpdateDescription,
     PopupEvaluateRepairCost,
   },
-  
+
   data() {
     return {
       id: this.$route.params.id,

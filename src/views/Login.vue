@@ -33,6 +33,7 @@ export default {
           password: this.password,
         })
         .then((data) => {
+          localStorage.setItem("loggedUserId", data.body.id);
           localStorage.setItem("token", data.body.token);
           localStorage.setItem("email", data.body.email);
           localStorage.setItem("isLogged", true);

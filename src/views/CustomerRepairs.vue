@@ -5,9 +5,9 @@
         <thead>
           <tr>
             <th class="text-left">Customer Name</th>
-            <th class="text-left">Customer Email</th>
-            <th class="text-left">Customer Phone Number</th>
-            <th class="text-left">User Name</th>
+            <th class="text-left">Create Date</th>
+            <th class="text-left">Finish Date</th>
+            <th class="text-left">Users Name</th>
             <th class="text-left">Description</th>
             <th class="text-left">Status</th>
             <th class="text-left">Details</th>
@@ -18,8 +18,9 @@
             <td>
               {{ repair.customerFirstName + " " + repair.customerLastName }}
             </td>
-            <td>{{ repair.customerEmail }}</td>
-            <td>{{ repair.customerPhoneNumber }}</td>
+            <td>{{ repair.createDateTime | formatDate }}</td>
+            <td v-if="repair.finishDateTime === '0001-01-01T00:00:00'">Not finished yet</td>
+            <td v-else>{{ repair.finishDateTime | formatDate }}</td>
             <td
               v-for="repairUser in repair.repairUsers"
               :key="repairUser.userId"
@@ -47,13 +48,15 @@ export default {
   data() {
     return {
       repairs: [],
+      //createDateTime: {}, 
     };
   },
   created() {
     this.$http
-      .get("https://localhost:44308/api/Repair/getCustomerRepairs")
+      .get("https://localhost:44308/api/Repair/getRepairs?CustomerId=" + localStorage.getItem("loggedUserId"))
       .then(function (data) {
         this.repairs = data.body;
+        //this.createDateTime = String(this.repair.createDateTime).format('MM/DD/YYYY hh:mm');
       }, function (error) {
         console.log(error);
         this.$router.push({ name: "Login" });
