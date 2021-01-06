@@ -4,6 +4,7 @@
       <v-app-bar-nav-icon
         @click="drawer = !drawer"
         class="white--text"
+        v-show="isLogged === 'true'"
       ></v-app-bar-nav-icon>
       <v-toolbar-title class="text-uppercase">
         <span class="font-weight-light">Computer</span>
@@ -53,8 +54,8 @@ export default {
   },
   computed: {
     isLogged() {
-      return this.isLoggedValue
-    }
+      return this.isLoggedValue;
+    },
   },
   methods: {
     logout: function () {
@@ -63,31 +64,85 @@ export default {
         .then(function () {
           localStorage.setItem("token", "");
           localStorage.setItem("isLogged", false);
-          console.log("wylogowany");
           this.$router.push({ name: "Login" });
           location.reload();
         });
     },
+    navigationDrawerContent: function () {
+      switch (this.userRole) {
+        case "Admin":
+          this.routes = this.routesAdmin;
+          break;
+        case "Customer":
+          this.routes = this.routesCustomer;
+          break;
+        case "Employee":
+          this.routes = this.routesEmployee;
+          break;
+        case "Boss":
+          this.routes = this.routesBoss;
+          break;
+        default:
+          console.log("Error no roles for this user");
+      }
+    },
+  },
+  created() {
+    this.navigationDrawerContent();
   },
   data() {
     return {
+      userRole: localStorage.getItem("userRole"),
       email: localStorage.getItem("email"),
       isLoggedValue: localStorage.getItem("isLogged"),
       drawer: false,
-      routes: [
+      routes: [],
+      routesAdmin: [
         { text: "Repairs", route: "/repairs" },
-        { text: "Repair types", route: "/repairTypes" },
-        { text: "Add new repair", route: "/addRepair" },
+        { text: "Add New Repair", route: "/addRepair" },
+        { text: "Repairs For Assign", route: "/repairsForAssign" },
+        { text: "Register Customer", route: "/registerCustomer" },
+        { text: "Repair Types", route: "/repairTypes" },
+        { text: "Parts", route: "/parts" },
         { text: "Login", route: "/login" },
         { text: "Register Employee", route: "/registerEmployee" },
-        { text: "Register Customer", route: "/registerCustomer" },
-        { text: "Customer Repairs", route: "/customerRepairs" },
+        { text: "Customer's Repairs", route: "/customerRepairs" },
+        { text: "Create Invoice", route: "/createInvoice" },
+        { text: "Users", route: "/users" },
+        { text: "Change Password", route: "/changePassword" },
+        { text: "Edit Your Data", route: "/editUser" },
       ],
+      routesCustomer: [
+        { text: "Customer's Repairs", route: "/customerRepairs" },
+        { text: "Change Password", route: "/changePassword" },
+        { text: "Edit Your Data", route: "/editUser" },
+      ],
+      routesEmployee: [
+        { text: "Repairs", route: "/repairs" },
+        { text: "Add New Repair", route: "/addRepair" },
+        { text: "Repairs For Assign", route: "/repairsForAssign" },
+        { text: "Register Customer", route: "/registerCustomer" },
+        { text: "Repair Types", route: "/repairTypes" },
+        { text: "Parts", route: "/parts" },
+        { text: "Change Password", route: "/changePassword" },
+        { text: "Edit Your Data", route: "/editUser" },
+      ],
+      routesBoss: [
+        { text: "Repairs", route: "/repairs" },
+        { text: "Add New Repair", route: "/addRepair" },
+        { text: "Register Customer", route: "/registerCustomer" },
+        { text: "Repair Types", route: "/repairTypes" },
+        { text: "Parts", route: "/parts" },
+        { text: "Create Invoice", route: "/createInvoice" },
+        { text: "Change Password", route: "/changePassword" },
+        { text: "Edit Your Data", route: "/editUser" },
+      ],
+
       loginRoute: {
         routeName: "Login",
         route: "/login",
       },
     };
-  }
+  },
 };
 </script>

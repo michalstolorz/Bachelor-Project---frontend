@@ -18,7 +18,7 @@
         persistent-hint
       ></v-select>
     </v-col>
-    <v-btn color="green accent-4" v-on:click="post"> Add repair </v-btn>
+    <v-btn color="green accent-4" dark v-on:click="post"> Add repair </v-btn>
   </form>
 </template>
 

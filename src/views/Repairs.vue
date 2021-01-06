@@ -20,14 +20,19 @@
             </td>
             <td>{{ repair.customerEmail }}</td>
             <td>{{ repair.customerPhoneNumber }}</td>
-            <td
-              v-for="repairUser in repair.repairUsers"
-              :key="repairUser.userId"
-            >
-              {{ repairUser.userFirstName + " " + repairUser.userLastName }}
+            <td>
+              <div
+                v-for="repairUser in repair.repairUsers"
+                :key="repairUser.userId"
+              >
+                {{ repairUser.userFirstName + " " + repairUser.userLastName }}
+              </div>
             </td>
             <td>{{ repair.description }}</td>
-            <td>{{ repair.status }}</td>
+            <td v-if="repair.status === 'New'"> New </td>
+            <td v-else-if="repair.status === 'ForCustomerApproval'"> For Customer Approval </td>
+            <td v-else-if="repair.status === 'InProgress'"> In Progress </td>
+            <td v-else-if="repair.status === 'Finished'"> Finished </td>
             <td>
               <router-link v-bind:to="'/repair/' + repair.id"
                 ><v-icon large color="blue darken-2">

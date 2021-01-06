@@ -13,7 +13,7 @@
         ></v-text-field>
       </v-row>
       <v-row>
-        <v-btn color="green accent-4" v-on:click="post"> Login </v-btn>
+        <v-btn color="green accent-4" dark v-on:click="post"> Login </v-btn>
       </v-row>
     </v-container>
   </v-form>
@@ -24,6 +24,7 @@ export default {
   data: () => ({
     email: "",
     password: "",
+
   }),
   methods: {
     post: function () {
@@ -37,8 +38,15 @@ export default {
           localStorage.setItem("token", data.body.token);
           localStorage.setItem("email", data.body.email);
           localStorage.setItem("isLogged", true);
-          console.log("zalogowany");
+          this.$http.get("https://localhost:44308/api/User/checkUserRole")
+          .then((data) => {
+            if(data.body == "Customer")
+              this.$router.push({ name: "CustomerRepairs" });
+            else
+              this.$router.push({ name: "Repairs" });
+          localStorage.setItem("userRole", data.body);
           location.reload();
+          });
         });
     },
   },

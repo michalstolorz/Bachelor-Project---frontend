@@ -21,11 +21,13 @@
             <td>{{ repair.createDateTime | formatDate }}</td>
             <td v-if="repair.finishDateTime === '0001-01-01T00:00:00'">Not finished yet</td>
             <td v-else>{{ repair.finishDateTime | formatDate }}</td>
-            <td
-              v-for="repairUser in repair.repairUsers"
-              :key="repairUser.userId"
-            >
-              {{ repairUser.userFirstName + " " + repairUser.userLastName }}
+            <td>
+              <div
+                v-for="repairUser in repair.repairUsers"
+                :key="repairUser.userId"
+              >
+                {{ repairUser.userFirstName + " " + repairUser.userLastName }}
+              </div>
             </td>
             <td>{{ repair.description }}</td>
             <td>{{ repair.status }}</td>

@@ -1,63 +1,99 @@
-import Vue from 'vue'
-import VueRouter from 'vue-router'
-import Repair from '../views/Repair.vue'
-import Repairs from '../views/Repairs.vue'
-import AddRepair from '../views/AddRepair.vue'
-import RepairTypes from '../views/RepairTypes.vue'
-import RegisterEmployee from '../views/RegisterEmployee.vue'
-import RegisterCustomer from '../views/RegisterCustomer.vue'
-import Login from '../views/Login.vue'
-import CustomerRepairs from '../views/CustomerRepairs.vue';
+import Vue from "vue";
+import VueRouter from "vue-router";
+import Repair from "../views/Repair.vue";
+import Repairs from "../views/Repairs.vue";
+import AddRepair from "../views/AddRepair.vue";
+import RepairTypes from "../views/RepairTypes.vue";
+import RegisterEmployee from "../views/RegisterEmployee.vue";
+import RegisterCustomer from "../views/RegisterCustomer.vue";
+import Login from "../views/Login.vue";
+import CustomerRepairs from "../views/CustomerRepairs.vue";
+import RepairsForAssign from "../views/RepairsForAssign.vue";
+import Parts from "../views/Parts.vue";
+import CreateInvoice from "../views/CreateInvoice.vue";
+import Users from "../views/Users.vue";
+import ChangePassword from "../views/ChangePassword.vue";
+import EditUser from "../views/EditUser.vue";
 
-Vue.use(VueRouter)
+Vue.use(VueRouter);
 
 const routes = [
   {
-    path: '/repair/:id',
-    name: 'Repair',
-    component: Repair
+    path: "/repair/:id",
+    name: "Repair",
+    component: Repair,
   },
   {
-    path: '/repairs',
-    name: 'Repairs',
-    component: Repairs
+    path: "/repairs",
+    name: "Repairs",
+    component: Repairs,
   },
   {
-    path: '/repairTypes',
-    name: 'RepairTypes',
-    component: RepairTypes
+    path: "/repairTypes",
+    name: "RepairTypes",
+    component: RepairTypes,
   },
   {
-    path: '/login',
-    name: 'Login',
-    component: Login
+    path: "/login",
+    name: "Login",
+    component: Login,
   },
   {
-    path: '/addRepair',
-    name: 'AddRepair',
-    component: AddRepair
+    path: "/addRepair",
+    name: "AddRepair",
+    component: AddRepair,
   },
   {
-    path: '/registerEmployee',
-    name: 'RegisterEmployee',
-    component: RegisterEmployee
+    path: "/registerEmployee",
+    name: "RegisterEmployee",
+    component: RegisterEmployee,
   },
   {
-    path: '/registerCustomer',
-    name: 'RegisterCustomer',
-    component: RegisterCustomer
+    path: "/registerCustomer",
+    name: "RegisterCustomer",
+    component: RegisterCustomer,
   },
   {
-    path: '/customerRepairs',
-    name: 'CustomerRepairs',
-    component: CustomerRepairs
-  }
-]
+    path: "/customerRepairs",
+    name: "CustomerRepairs",
+    component: CustomerRepairs,
+  },
+  {
+    path: "/repairsForAssign",
+    name: "RepairsForAssign",
+    component: RepairsForAssign,
+  },
+  {
+    path: "/parts",
+    name: "Parts",
+    component: Parts,
+  },
+  {
+    path: "/createInvoice",
+    name: "CreateInvoice",
+    component: CreateInvoice,
+  },
+  {
+    path: "/users",
+    name: "Users",
+    component: Users,
+  },
+  {
+    path: "/changePassword",
+    name: "ChangePassword",
+    component: ChangePassword,
+  },
+  {
+    path: "/editUser",
+    name: "EditUser",
+    component: EditUser,
+  },
+];
 
 const router = new VueRouter({
-  mode: 'history',
+  mode: "history",
   base: process.env.BASE_URL,
-  routes
-})
+  routes,
+});
 
-export default router
+export default router;

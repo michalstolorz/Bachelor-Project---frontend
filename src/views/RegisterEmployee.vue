@@ -34,7 +34,7 @@
         ></v-text-field>
       </v-row>
       <v-row>
-        <v-btn color="green accent-4" v-on:click="post"> Register User </v-btn>
+        <v-btn color="green accent-4" dark v-on:click="post"> Register New Employee </v-btn>
       </v-row>
     </v-container>
   </v-form>

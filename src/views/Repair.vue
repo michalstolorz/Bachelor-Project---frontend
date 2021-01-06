@@ -1,25 +1,50 @@
 <template>
   <v-container>
-    <div class="centerDiv">
-      <div>STATUS</div>
-      <v-btn v-if="repair.status == 1" x-large color="light-blue accent-4" dark>
-        New
-      </v-btn>
-      <v-btn v-if="repair.status == 2" x-large color="orange" dark>
-        For Customer Approval
-      </v-btn>
-      <v-btn
-        v-if="repair.status == 3"
-        x-large
-        color="deep-purple accent-4"
-        dark
-      >
-        In Progress
-      </v-btn>
-      <v-btn v-if="repair.status == 4" x-large color="success" dark>
-        Finished
-      </v-btn>
-    </div>
+    <v-row>
+      <v-col cols="12" sm="4">
+        <div class="centerDiv">Create Date Time:</div>
+        <div class="centerDiv">
+          {{ repair.createDateTime | formatDate }}
+        </div>
+      </v-col>
+      <v-col cols="12" sm="4"
+        ><div class="centerDiv">
+          <div>STATUS</div>
+          <v-btn
+            v-if="repair.status == 1"
+            x-large
+            color="light-blue accent-4"
+            dark
+          >
+            New
+          </v-btn>
+          <v-btn v-if="repair.status == 2" x-large color="orange" dark>
+            For Customer Approval
+          </v-btn>
+          <v-btn
+            v-if="repair.status == 3"
+            x-large
+            color="deep-purple accent-4"
+            dark
+          >
+            In Progress
+          </v-btn>
+          <v-btn v-if="repair.status == 4" x-large color="success" dark>
+            Finished
+          </v-btn>
+        </div>
+      </v-col>
+      <v-col cols="12" sm="4">
+        <div class="centerDiv">Finish Date Time:</div>
+        <div v-if="repair.finishDateTime === null" class="centerDiv">
+          Not finished yet
+        </div>
+        <div class="centerDiv" v-else>
+          {{ repair.finishDateTime | formatDate }}
+        </div>
+      </v-col>
+    </v-row>
+
     <br />
     <v-row>
       <v-col cols="12" sm="4">
@@ -71,7 +96,7 @@
       </v-col>
     </v-row>
 
-    <v-row>
+    <v-row v-show="!isCustomer">
       <v-col cols="12" sm="4"></v-col>
       <v-col cols="12" sm="4"> <PopupEvaluateRepairCost /> </v-col>
     </v-row>
@@ -108,7 +133,7 @@
               Used Parts:
               <div
                 class="text-center title"
-                v-for="part in repair.partsUsedInRepair"
+                v-for="part in repair.usedParts"
                 :key="part.id"
               >
                 {{ part.name }} - {{ part.quantity }}
@@ -141,10 +166,10 @@
         </v-hover>
       </v-col>
     </v-row>
-    <v-row>
+    <v-row v-show="!isCustomer">
       <v-col cols="12" sm="4"> <PopupUpdateDescription /> </v-col>
-      <v-col cols="12" sm="4">button update parts </v-col>
-      <v-col cols="12" sm="4">button update repair types</v-col>
+      <v-col cols="12" sm="4"> <PopupUpdateUsedParts /> </v-col>
+      <v-col cols="12" sm="4"> <PopupUpdateRepairTypes /> </v-col>
     </v-row>
   </v-container>
 </template>
@@ -152,24 +177,35 @@
 <script>
 import PopupUpdateDescription from "../components/PopupUpdateDescription.vue";
 import PopupEvaluateRepairCost from "../components/PopupEvaluateRepairCost.vue";
+import PopupUpdateUsedParts from "../components/PopupUpdateUsedParts.vue";
+import PopupUpdateRepairTypes from "../components/PopudUpdateRepairTypes.vue";
 
 export default {
   components: {
     PopupUpdateDescription,
     PopupEvaluateRepairCost,
+    PopupUpdateUsedParts,
+    PopupUpdateRepairTypes,
   },
 
   data() {
     return {
-      id: this.$route.params.id,
+      repairId: this.$route.params.id,
       repair: {},
+      isCustomer: false,
     };
   },
   created() {
     this.$http
-      .get("https://localhost:44308/api/Repair/getRepair/" + this.id)
+      .get("https://localhost:44308/api/Repair/getRepair/" + this.repairId)
       .then(function (data) {
         this.repair = data.body;
+      });
+
+    this.$http
+      .get("https://localhost:44308/api/User/checkUserInRole?role=Customer")
+      .then((data) => {
+        this.isCustomer = data.body;
       });
   },
   methods: {},
