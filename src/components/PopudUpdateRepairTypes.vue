@@ -13,15 +13,32 @@
         <v-card-text>
           <v-container>
             <v-row>
-              <v-col cols="12"
-                ><v-select
+              <v-col cols="12">
+                <v-row
+                  v-show="emptyErrorFlag"
+                  v-for="error in errorList"
+                  :key="error.id"
+                  style="color: red; font-size: 150%; font-weight: 1500"
+                >
+                  {{ error.name }}
+                </v-row>
+                <v-row
+                  v-show="error500Flag"
+                  style="color: red; font-size: 100%; font-weight: 1500"
+                >
+                  Repair type already assign to your repair.
+                </v-row>
+                <v-select
                   v-model="choosenRepairTypes"
                   :items="selectRepairType"
+                  :error-messages="selectRepairTypeErrors"
                   label="Repair Types"
                   multiple
                   chips
                   hint="What are the repair types"
                   persistent-hint
+                  @input="$v.choosenRepairTypes.$touch()"
+                  @blur="$v.choosenRepairTypes.$touch()"
                 ></v-select>
               </v-col>
             </v-row>
@@ -47,21 +64,26 @@
 </template>
 
 <script>
+import { validationMixin } from "vuelidate";
+import { required } from "vuelidate/lib/validators";
+
 export default {
+  mixins: [validationMixin],
+
+  validations: {
+    choosenRepairTypes: { required },
+  },
+
   data() {
     return {
       repairId: this.$route.params.id,
       dialog: false,
       repairTypes: [],
       choosenRepairTypes: [],
+      error500Flag: false,
+      emptyErrorFlag: false,
+      errorList: [],
     };
-  },
-  created() {
-    this.$http
-      .get("https://localhost:44308/api/RepairType/getRepairTypes")
-      .then((data) => {
-        this.repairTypes = data.body;
-      });
   },
   computed: {
     selectRepairType() {
@@ -70,21 +92,62 @@ export default {
         value: repairType.id,
       }));
     },
+    selectRepairTypeErrors() {
+      const errors = [];
+      if (!this.$v.choosenRepairTypes.$dirty) return errors;
+      !this.$v.choosenRepairTypes.required &&
+        errors.push("Repair Type is required");
+      return errors;
+    },
   },
   methods: {
-    post: function () {
-      this.$http
-        .post(
-          "https://localhost:44308/api/RequiredRepairType/assignRepairTypeToRepair",
-          {
-            repairId: this.repairId,
-            repairTypeIds: this.choosenRepairTypes,
-          }
-        )
-        .then(function () {
-          location.reload();
-        });
+    fillSelectRepairTypeErrors: function () {
+      let errors = "";
+      if (!this.$v.choosenRepairTypes.$dirty) return errors;
+      if (!this.$v.choosenRepairTypes.required)
+        return (errors = "Repair Type is required");
     },
+    fillErrorList: function () {
+      this.errorList = [];
+      if (this.fillSelectRepairTypeErrors() !== "")
+        this.errorList.push({ id: 1, name: this.fillSelectRepairTypeErrors() });
+      this.emptyErrorFlag = true;
+      this.error500Flag = false;
+    },
+    post: function () {
+      this.$v.$touch();
+      if (this.$v.$invalid) {
+        this.dialog = true;
+        this.fillErrorList();
+      } else {
+        this.$http
+          .post(
+            "https://localhost:44308/api/RequiredRepairType/assignRepairTypeToRepair",
+            {
+              repairId: this.repairId,
+              repairTypeIds: this.choosenRepairTypes,
+            }
+          )
+          .then(
+            function () {
+              location.reload();
+            },
+            function (error) {
+              console.log(error);
+              this.dialog = true;
+              this.error500Flag = true;
+              this.emptyErrorFlag = false;
+            }
+          );
+      }
+    },
+  },
+  created() {
+    this.$http
+      .get("https://localhost:44308/api/RepairType/getRepairTypes")
+      .then((data) => {
+        this.repairTypes = data.body;
+      });
   },
 };
 </script>

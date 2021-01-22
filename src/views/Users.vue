@@ -19,26 +19,15 @@
         hide-details
       ></v-text-field>
     </v-card-title>
-    <v-data-table
-      :headers="headers"
-      :items="users"
-      :search="search"
-    >
-    <template v-slot:[`item.actions`]="{item}">
-        <v-icon
-        class="mr-2"
-        @clicl="item">
-            mdi-pencil
+    <v-data-table :headers="headers" :items="users" :search="search">
+      <template v-slot:[`item.actions`]="{ item }">
+        <router-link v-bind:to="'/editUserByAdmin/' + item.userId">
+          <v-icon class="mr-2"> mdi-pencil </v-icon>
+        </router-link>
+        <v-icon class="mr-2" @click="resetPassword(item.userId)">
+          mdi-lock-reset
         </v-icon>
-        <v-icon
-        class="mr-2">
-            mdi-key-change
-        </v-icon>
-        <v-icon
-        class="mr-2">
-            mdi-lock-reset
-        </v-icon>
-    </template>
+      </template>
     </v-data-table>
   </v-card>
 </template>
@@ -46,7 +35,15 @@
 <script>
 export default {
   components: {},
-
+  methods: {
+    resetPassword: function (userId) {
+      this.$http
+        .post("https://localhost:44308/api/Authentication/resetPassword/" + userId)
+        .then(function () {
+          location.reload();
+        });
+    },
+  },
   data() {
     return {
       users: [],

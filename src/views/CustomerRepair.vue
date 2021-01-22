@@ -98,7 +98,7 @@
 
     <v-row>
       <v-col cols="12" sm="4"></v-col>
-      <v-col cols="12" sm="4"> <PopupEvaluateRepairCost /> </v-col>
+      <v-col cols="12" sm="4"></v-col>
     </v-row>
 
     <v-row>
@@ -166,27 +166,12 @@
         </v-hover>
       </v-col>
     </v-row>
-    <v-row>
-      <v-col cols="12" sm="4"> <PopupUpdateDescription /> </v-col>
-      <v-col cols="12" sm="4"> <PopupUpdateUsedParts /> </v-col>
-      <v-col cols="12" sm="4"> <PopupUpdateRepairTypes /> </v-col>
-    </v-row>
   </v-container>
 </template>
 
 <script>
-import PopupUpdateDescription from "../components/PopupUpdateDescription.vue";
-import PopupEvaluateRepairCost from "../components/PopupEvaluateRepairCost.vue";
-import PopupUpdateUsedParts from "../components/PopupUpdateUsedParts.vue";
-import PopupUpdateRepairTypes from "../components/PopudUpdateRepairTypes.vue";
-
 export default {
-  components: {
-    PopupUpdateDescription,
-    PopupEvaluateRepairCost,
-    PopupUpdateUsedParts,
-    PopupUpdateRepairTypes,
-  },
+  components: {},
 
   data() {
     return {
@@ -195,12 +180,13 @@ export default {
     };
   },
   created() {
-      this.$http
-        .get("https://localhost:44308/api/Repair/getRepair/" + this.repairId)
-        .then(function (data) {
-          this.repair = data.body;
-        });
-    
+    this.$http
+      .get(
+        "https://localhost:44308/api/Repair/getCustomerRepair/" + this.repairId
+      )
+      .then((data) => {
+        this.repair = data.body;
+      });
   },
   methods: {},
 };

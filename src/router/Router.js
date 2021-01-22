@@ -8,12 +8,16 @@ import RegisterEmployee from "../views/RegisterEmployee.vue";
 import RegisterCustomer from "../views/RegisterCustomer.vue";
 import Login from "../views/Login.vue";
 import CustomerRepairs from "../views/CustomerRepairs.vue";
+import CustomerRepair from "../views/CustomerRepair.vue";
 import RepairsForAssign from "../views/RepairsForAssign.vue";
 import Parts from "../views/Parts.vue";
 import CreateInvoice from "../views/CreateInvoice.vue";
 import Users from "../views/Users.vue";
 import ChangePassword from "../views/ChangePassword.vue";
 import EditUser from "../views/EditUser.vue";
+import EditUserByAdmin from "../views/EditUserByAdmin.vue";
+import Forbidden from "../views/Forbidden.vue";
+import NotFound from "../views/NotFound.vue";
 
 Vue.use(VueRouter);
 
@@ -59,6 +63,11 @@ const routes = [
     component: CustomerRepairs,
   },
   {
+    path: "/customerRepair/:id",
+    name: "CustomerRepair",
+    component: CustomerRepair,
+  },
+  {
     path: "/repairsForAssign",
     name: "RepairsForAssign",
     component: RepairsForAssign,
@@ -87,6 +96,21 @@ const routes = [
     path: "/editUser",
     name: "EditUser",
     component: EditUser,
+  },
+  {
+    path: "/editUserByAdmin/:userId",
+    name: "EditUserByAdmin",
+    component: EditUserByAdmin,
+  },
+  {
+    path: "/forbidden",
+    name: "Forbidden",
+    component: Forbidden,
+  },
+  {
+    path: "/notFound",
+    name: "NotFound",
+    component: NotFound,
   },
 ];
 

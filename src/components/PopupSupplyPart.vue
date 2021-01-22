@@ -1,14 +1,14 @@
 <template>
-  <v-row justify="center">
+  <v-row justify="start">
     <v-dialog v-model="dialog" persistent max-width="800px">
       <template v-slot:activator="{ on, attrs }">
         <v-btn color="green accent-4" dark v-bind="attrs" v-on="on">
-          Add Part
+          <v-icon dark> mdi-hammer-wrench </v-icon>
         </v-btn>
       </template>
       <v-card>
         <v-card-title>
-          <span class="headline">Add Part</span>
+          <span class="headline">Supply {{ item.name }}</span>
         </v-card-title>
         <v-card-text>
           <v-container>
@@ -22,20 +22,6 @@
                 >
                   {{ error.name }}
                 </v-row>
-                <v-row
-                  v-show="error500Flag"
-                  style="color: red; font-size: 100%; font-weight: 1500"
-                >
-                  Part with given name already exist.
-                </v-row>
-                <v-text-field
-                  v-model="partName"
-                  :error-messages="partNameErrors"
-                  label="Part Name"
-                  required
-                  @input="$v.partName.$touch()"
-                  @blur="$v.partName.$touch()"
-                ></v-text-field>
                 <v-text-field
                   v-model="quantity"
                   :error-messages="quantityErrors"
@@ -43,14 +29,6 @@
                   required
                   @input="$v.quantity.$touch()"
                   @blur="$v.quantity.$touch()"
-                ></v-text-field>
-                <v-text-field
-                  v-model="partBoughtPrice"
-                  :error-messages="partBoughtPriceErrors"
-                  label="Part Bought Price"
-                  required
-                  @input="$v.partBoughtPrice.$touch()"
-                  @blur="$v.partBoughtPrice.$touch()"
                 ></v-text-field>
               </v-col>
             </v-row>
@@ -65,9 +43,9 @@
             color="blue darken-1"
             text
             @click="dialog = !dialog"
-            v-on:click="post"
+            v-on:click="put"
           >
-            Add
+            Supply
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -83,29 +61,18 @@ export default {
   mixins: [validationMixin],
 
   validations: {
-    partName: { required },
     quantity: { required, minValue: minValue(1) },
-    partBoughtPrice: { required, minValue: minValue(1) },
   },
-
+  props: ["item"],
   data() {
     return {
       dialog: false,
-      partName: "",
       quantity: 0,
-      partBoughtPrice: 0,
-      error500Flag: false,
       emptyErrorFlag: false,
       errorList: [],
     };
   },
   computed: {
-    partNameErrors() {
-      const errors = [];
-      if (!this.$v.partName.$dirty) return errors;
-      !this.$v.partName.required && errors.push("Part name is required");
-      return errors;
-    },
     quantityErrors() {
       const errors = [];
       if (!this.$v.quantity.$dirty) return errors;
@@ -114,23 +81,8 @@ export default {
         errors.push("Quantity can not be 0 or less");
       return errors;
     },
-    partBoughtPriceErrors() {
-      const errors = [];
-      if (!this.$v.partBoughtPrice.$dirty) return errors;
-      !this.$v.partBoughtPrice.required &&
-        errors.push("Part bought price is required");
-      !this.$v.partBoughtPrice.minValue &&
-        errors.push("Part bought price can not be 0 or less");
-      return errors;
-    },
   },
   methods: {
-    fillPartNameErrors: function () {
-      let errors = "";
-      if (!this.$v.partName.$dirty) return errors;
-      if (!this.$v.partName.required) return (errors = "Part name is required");
-      return errors;
-    },
     fillQuantityErrors: function () {
       let errors = "";
       if (!this.$v.quantity.$dirty) return errors;
@@ -139,37 +91,24 @@ export default {
         return (errors = "Quantity can not be 0 or less");
       return errors;
     },
-    fillPartBoughtPriceErrors: function () {
-      let errors = "";
-      if (!this.$v.partBoughtPrice.$dirty) return errors;
-      if (!this.$v.partBoughtPrice.required)
-        return (errors = "Part bought price is required");
-      if (!this.$v.partBoughtPrice.minValue)
-        return (errors = "Part bought price can not be 0 or less");
-      return errors;
-    },
     fillErrorList: function () {
       this.errorList = [];
-      if (this.fillPartNameErrors() !== "")
-        this.errorList.push({ id: 1, name: this.fillPartNameErrors() });
       if (this.fillQuantityErrors() !== "")
-        this.errorList.push({ id: 2, name: this.fillQuantityErrors() });
-      if (this.fillPartBoughtPriceErrors() !== "")
-        this.errorList.push({ id: 3, name: this.fillPartBoughtPriceErrors() });
+        this.errorList.push({ id: 1, name: this.fillQuantityErrors() });
       this.emptyErrorFlag = true;
-      this.error500Flag = false;
     },
-    post: function () {
+    put: function () {
       this.$v.$touch();
       if (this.$v.$invalid) {
         this.dialog = true;
+      }
+      if (this.fillQuantityErrors() !== "") {
         this.fillErrorList();
       } else {
         this.$http
-          .post("https://localhost:44308/api/Part/addPart", {
-            name: this.partName,
+          .put("https://localhost:44308/api/Part/supplyPart", {
+            partId: this.item.id,
             quantity: this.quantity,
-            partBoughtPrice: this.partBoughtPrice,
           })
           .then(
             function () {
@@ -178,7 +117,6 @@ export default {
             function (error) {
               console.log(error);
               this.dialog = true;
-              this.error500Flag = true;
               this.emptyErrorFlag = false;
             }
           );

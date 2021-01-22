@@ -1,47 +1,32 @@
 <template>
   <div class="repairs">
-    <v-simple-table>
-      <template v-slot:default>
-        <thead>
-          <tr>
-            <th class="text-left">Customer Name</th>
-            <th class="text-left">Create Date</th>
-            <th class="text-left">Finish Date</th>
-            <th class="text-left">Users Name</th>
-            <th class="text-left">Description</th>
-            <th class="text-left">Status</th>
-            <th class="text-left">Details</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="repair in repairs" :key="repair.id">
-            <td>
-              {{ repair.customerFirstName + " " + repair.customerLastName }}
-            </td>
-            <td>{{ repair.createDateTime | formatDate }}</td>
-            <td v-if="repair.finishDateTime === '0001-01-01T00:00:00'">Not finished yet</td>
-            <td v-else>{{ repair.finishDateTime | formatDate }}</td>
-            <td>
-              <div
-                v-for="repairUser in repair.repairUsers"
-                :key="repairUser.userId"
-              >
-                {{ repairUser.userFirstName + " " + repairUser.userLastName }}
-              </div>
-            </td>
-            <td>{{ repair.description }}</td>
-            <td>{{ repair.status }}</td>
-            <td>
-              <router-link v-bind:to="'/repair/' + repair.id"
-                ><v-icon large color="blue darken-2">
-                  mdi-message-text
-                </v-icon></router-link
-              >
-            </td>
-          </tr>
-        </tbody>
-      </template>
-    </v-simple-table>
+    <v-card>
+      <v-card-title>
+        {{ this.customerName }} Repairs
+        <v-spacer></v-spacer>
+        <v-text-field
+          v-model="search"
+          append-icon="mdi-magnify"
+          label="Search"
+          single-line
+          hide-details
+        ></v-text-field>
+      </v-card-title>
+      <v-data-table :headers="headers" :items="repairs" :search="search">
+        <template v-slot:[`item.employeeNames`]="{ item }">
+          <div v-for="repairUser in item.repairUsers" :key="repairUser.userId">
+            {{ repairUser.userFirstName + " " + repairUser.userLastName }}
+          </div>
+        </template>
+        <template v-slot:[`item.actions`]="{ item }">
+          <router-link v-bind:to="'/customerRepair/' + item.id"
+            ><v-icon large color="blue darken-2">
+              mdi-message-text
+            </v-icon></router-link
+          >
+        </template>
+      </v-data-table>
+    </v-card>
   </div>
 </template>
 
@@ -50,20 +35,48 @@ export default {
   data() {
     return {
       repairs: [],
-      //createDateTime: {}, 
+      search: "",
+      customerName: "",
+      headers: [
+        { text: "Customer Email", value: "customerEmail" },
+        { text: "Customer Phone Number", value: "customerPhoneNumber" },
+        { text: "Employee Name", value: "employeeNames" },
+        { text: "Description", value: "description" },
+        { text: "Status", value: "status" },
+        { text: "Details", value: "actions", filterable: false },
+      ],
     };
   },
   created() {
     this.$http
-      .get("https://localhost:44308/api/Repair/getRepairs?CustomerId=" + localStorage.getItem("loggedUserId"))
-      .then(function (data) {
-        this.repairs = data.body;
-        //this.createDateTime = String(this.repair.createDateTime).format('MM/DD/YYYY hh:mm');
-      }, function (error) {
-        console.log(error);
-        this.$router.push({ name: "Login" });
-      });
-    console.log(localStorage.getItem("isLogged"));
+      .get(
+        "https://localhost:44308/api/Repair/getCustomerRepairs"
+      )
+      .then(
+        function (data) {
+          this.repairs = data.body;
+          this.customerName = data.body[0].customerName;
+          this.repairs.forEach((repair) => {
+            switch (repair.status) {
+              case "New":
+                break;
+              case "ForCustomerApproval":
+                repair.status = "For Customer Approval";
+                break;
+              case "InProgress":
+                repair.status = "In Progress";
+                break;
+              case "Finished":
+                break;
+              default:
+                console.log(`Wrong status ${repair.status}`);
+            }
+          });
+        },
+        function (error) {
+          console.log(error);
+        }
+      );
   },
 };
 </script>

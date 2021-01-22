@@ -11,27 +11,6 @@
       </v-row>
       <v-row>
         <v-text-field
-          v-model="email"
-          :error-messages="emailErrors"
-          label="E-mail"
-          required
-          @input="$v.email.$touch()"
-          @blur="$v.email.$touch()"
-        ></v-text-field>
-      </v-row>
-      <v-row>
-        <v-text-field
-          :type="'password'"
-          v-model="password"
-          :error-messages="passwordErrors"
-          label="Password"
-          required
-          @input="$v.password.$touch()"
-          @blur="$v.password.$touch()"
-        ></v-text-field>
-      </v-row>
-      <v-row>
-        <v-text-field
           v-model="firstName"
           :error-messages="firstNameErrors"
           label="First Name"
@@ -52,6 +31,16 @@
       </v-row>
       <v-row>
         <v-text-field
+          v-model="email"
+          :error-messages="emailErrors"
+          label="E-mail"
+          required
+          @input="$v.email.$touch()"
+          @blur="$v.email.$touch()"
+        ></v-text-field>
+      </v-row>
+      <v-row>
+        <v-text-field
           v-model="phoneNumber"
           :error-messages="phoneNumberErrors"
           label="Phone Number (+48 ...)"
@@ -60,11 +49,8 @@
           @blur="$v.phoneNumber.$touch()"
         ></v-text-field>
       </v-row>
-      <br />
       <v-row>
-        <v-btn color="green accent-4" dark v-on:click="post">
-          Register New Customer
-        </v-btn>
+        <v-btn color="green accent-4" dark v-on:click="post"> Edit </v-btn>
       </v-row>
     </v-container>
   </v-form>
@@ -79,7 +65,6 @@ export default {
 
   validations: {
     email: { required, email },
-    password: { required },
     firstName: { required },
     lastName: { required },
     phoneNumber: {
@@ -90,15 +75,17 @@ export default {
     },
   },
 
-  data: () => ({
-    email: "",
-    password: "",
-    firstName: "",
-    lastName: "",
-    phoneNumber: "",
-    emptyErrorFlag: false,
-    errorList: [],
-  }),
+  data() {
+    return {
+      userId: this.$route.params.userId,
+      firstName: "",
+      lastName: "",
+      email: "",
+      phoneNumber: "",
+      emptyErrorFlag: false,
+      errorList: [],
+    };
+  },
 
   computed: {
     emailErrors() {
@@ -106,12 +93,6 @@ export default {
       if (!this.$v.email.$dirty) return errors;
       !this.$v.email.email && errors.push("E-mail is not valid");
       !this.$v.email.required && errors.push("E-mail is required");
-      return errors;
-    },
-    passwordErrors() {
-      const errors = [];
-      if (!this.$v.password.$dirty) return errors;
-      !this.$v.password.required && errors.push("Password is required");
       return errors;
     },
     firstNameErrors() {
@@ -135,18 +116,13 @@ export default {
       return errors;
     },
   },
+
   methods: {
     fillEmailErrors: function () {
       let errors = "";
       if (!this.$v.email.$dirty) return errors;
       if (!this.$v.email.required) return (errors = "E-mail is required");
       if (!this.$v.email.email) return (errors = "E-mail is not valid");
-      return errors;
-    },
-    fillPasswordErrors: function () {
-      let errors = "";
-      if (!this.$v.password.$dirty) return errors;
-      if (!this.$v.password.required) return (errors = "Password is required");
       return errors;
     },
     fillFirstNameErrors: function () {
@@ -175,14 +151,12 @@ export default {
       this.errorList = [];
       if (this.fillEmailErrors() !== "")
         this.errorList.push({ id: 1, name: this.fillEmailErrors() });
-      if (this.fillPasswordErrors() !== "")
-        this.errorList.push({ id: 2, name: this.fillPasswordErrors() });
       if (this.fillFirstNameErrors() !== "")
-        this.errorList.push({ id: 3, name: this.fillFirstNameErrors() });
+        this.errorList.push({ id: 2, name: this.fillFirstNameErrors() });
       if (this.fillLastNameErrors() !== "")
-        this.errorList.push({ id: 4, name: this.fillLastNameErrors() });
+        this.errorList.push({ id: 3, name: this.fillLastNameErrors() });
       if (this.fillPhoneNumberErrors() !== "")
-        this.errorList.push({ id: 5, name: this.fillPhoneNumberErrors() });
+        this.errorList.push({ id: 4, name: this.fillPhoneNumberErrors() });
       this.emptyErrorFlag = true;
     },
     post: function () {
@@ -191,30 +165,28 @@ export default {
         this.fillErrorList();
       } else {
         this.$http
-          .post("https://localhost:44308/api/Registration/registerUser", {
-            email: this.email,
-            password: this.password,
+          .put("https://localhost:44308/api/User/updateUserInfo", {
+            userId: this.userId,
             firstName: this.firstName,
             lastName: this.lastName,
+            email: this.email,
             phoneNumber: this.phoneNumber,
           })
-          .then(
-            (data) => {
-              this.$http.put(
-                "https://localhost:44308/api/Roles/addUserToRoles",
-                {
-                  userId: data.data,
-                  role: "Customer",
-                }
-              );
-              this.$router.push({ name: "Repairs" });
-            },
-            function (error) {
-              console.log(error);
-            }
-          );
+          .then(function () {
+            this.$router.push({ name: "Users" });
+          });
       }
     },
+  },
+  created() {
+    this.$http
+      .get("https://localhost:44308/api/User/getUser/" + this.userId)
+      .then(function (data) {
+        this.firstName = data.body.firstName;
+        this.lastName = data.body.lastName;
+        this.email = data.body.email;
+        this.phoneNumber = data.body.phoneNumber;
+      });
   },
 };
 </script>

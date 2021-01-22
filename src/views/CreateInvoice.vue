@@ -1,103 +1,30 @@
 <template>
-  <div class="repairs">
-    <v-simple-table>
-      <template v-slot:default>
-        <thead>
-          <tr>
-            <th class="text-left">Customer Name</th>
-            <th class="text-left">Customer Email</th>
-            <th class="text-left">Customer Phone Number</th>
-            <th class="text-left">User Name</th>
-            <th class="text-left">Description</th>
-            <th class="text-left">Status</th>
-            <th class="text-left">Assign</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="repair in newRepairs" :key="repair.id">
-            <td>
-              {{ repair.customerFirstName + " " + repair.customerLastName }}
-            </td>
-            <td>{{ repair.customerEmail }}</td>
-            <td>{{ repair.customerPhoneNumber }}</td>
-            <td>
-              <div
-                v-for="repairUser in repair.repairUsers"
-                :key="repairUser.userId"
-              >
-                {{ repairUser.userFirstName + " " + repairUser.userLastName }}
-              </div>
-            </td>
-            <td>{{ repair.description }}</td>
-            <td>{{ repair.status }}</td>
-            <td>
-              <v-btn
-                class="ma-2"
-                color="green"
-                dark
-                v-on:click="post(repair.id)"
-              >Create
-                <v-icon dark> mdi-checkbox-marked-circle </v-icon>
-              </v-btn>
-            </td>
-          </tr>
-          <tr v-for="repair in forCustomerApprovalRepairs" :key="repair.id">
-            <td>
-              {{ repair.customerFirstName + " " + repair.customerLastName }}
-            </td>
-            <td>{{ repair.customerEmail }}</td>
-            <td>{{ repair.customerPhoneNumber }}</td>
-            <td>
-              <div
-                v-for="repairUser in repair.repairUsers"
-                :key="repairUser.userId"
-              >
-                {{ repairUser.userFirstName + " " + repairUser.userLastName }}
-              </div>
-            </td>
-            <td>{{ repair.description }}</td>
-            <td> For Customer Approval </td>
-            <td>
-              <v-btn
-                class="ma-2"
-                color="green"
-                dark
-                v-on:click="post(repair.id)"
-              >Create
-                <v-icon dark> mdi-checkbox-marked-circle </v-icon>
-              </v-btn>
-            </td>
-          </tr>
-          <tr v-for="repair in inProgressRepairs" :key="repair.id">
-            <td>
-              {{ repair.customerFirstName + " " + repair.customerLastName }}
-            </td>
-            <td>{{ repair.customerEmail }}</td>
-            <td>{{ repair.customerPhoneNumber }}</td>
-            <td>
-              <div
-                v-for="repairUser in repair.repairUsers"
-                :key="repairUser.userId"
-              >
-                {{ repairUser.userFirstName + " " + repairUser.userLastName }}
-              </div>
-            </td>
-            <td>{{ repair.description }}</td>
-            <td> In Progress </td>
-            <td>
-              <v-btn
-                class="ma-2"
-                color="green"
-                dark
-                v-on:click="post(repair.id)"
-              >Create
-                <v-icon dark> mdi-checkbox-marked-circle </v-icon>
-              </v-btn>
-            </td>
-          </tr>
-        </tbody>
-      </template>
-    </v-simple-table>
+  <div class="createInvoice">
+    <v-card>
+      <v-card-title>
+        Create Invoice
+        <v-spacer></v-spacer>
+        <v-text-field
+          v-model="search"
+          append-icon="mdi-magnify"
+          label="Search"
+          single-line
+          hide-details
+        ></v-text-field>
+      </v-card-title>
+      <v-data-table :headers="headers" :items="repairs" :search="search">
+        <template v-slot:[`item.employeeNames`]="{ item }">
+          <div v-for="repairUser in item.repairUsers" :key="repairUser.userId">
+            {{ repairUser.userFirstName + " " + repairUser.userLastName }}
+          </div>
+        </template>
+        <template v-slot:[`item.actions`]="{ item }">
+          <v-btn class="ma-2" color="green" dark v-on:click="post(item.id)">
+            <v-icon dark> mdi-wrench </v-icon>
+          </v-btn>
+        </template>
+      </v-data-table>
+    </v-card>
   </div>
 </template>
 
@@ -106,9 +33,19 @@ export default {
   data() {
     return {
       repairs: [],
-      newRepairs: [],
-      inProgressRepairs: [],
-      forCustomerApprovalRepairs: [],
+      search: "",
+      headers: [
+        {
+          text: "Customer Name",
+          value: "customerName",
+        },
+        { text: "Customer Email", value: "customerEmail" },
+        { text: "Customer Phone Number", value: "customerPhoneNumber" },
+        { text: "Employee Name", value: "employeeNames" },
+        { text: "Description", value: "description" },
+        { text: "Status", value: "status" },
+        { text: "Assign", value: "actions", filterable: false },
+      ],
     };
   },
   methods: {
@@ -122,13 +59,27 @@ export default {
   },
   created() {
     this.$http
-      .get("https://localhost:44308/api/Repair/getRepairsForAssign")
+      .get("https://localhost:44308/api/Repair/getRepairsForInvoices")
       .then(
         function (data) {
-          this.newRepairs = data.body[0];
-          this.inProgressRepairs = data.body[1];
-          this.forCustomerApprovalRepairs = data.body[2];
-        },
+          this.repairs = data.body;
+        this.repairs.forEach((repair) => {
+          switch (repair.status) {
+            case "New":
+              break;
+            case "ForCustomerApproval":
+              repair.status = "For Customer Approval";
+              break;
+            case "InProgress":
+              repair.status = "In Progress";
+              break;
+            case "Finished":
+              break;
+            default:
+              console.log(`Wrong status ${repair.status}`);
+          }
+        });
+      },
         function (error) {
           console.log(error);
           this.$router.push({ name: "Login" });

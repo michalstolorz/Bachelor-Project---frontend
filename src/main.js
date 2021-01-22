@@ -4,8 +4,10 @@ import router from "./router/Router";
 import vuetify from "./plugins/vuetify";
 import VueResource from "vue-resource";
 import moment from "moment";
+import Vuelidate from "vuelidate";
 
 Vue.use(VueResource);
+Vue.use(Vuelidate);
 
 Vue.http.interceptors.push((request, next) => {
   request.headers.set(
@@ -13,7 +15,20 @@ Vue.http.interceptors.push((request, next) => {
     "Bearer " + localStorage.getItem("token")
   );
   request.headers.set("Accept", "application/json");
-  next();
+  next(function(response) {
+    let path = "";
+    console.log(response);
+    switch (response.status) {
+      case 403:
+        path = "Forbidden";
+        break;
+      case 404:
+        path = "NotFound";
+        break;
+    }
+    router.push({ name: path }).catch(() => {});
+    next();
+  });
 });
 
 Vue.filter("formatDate", function(value) {
