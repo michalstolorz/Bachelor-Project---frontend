@@ -1,4 +1,4 @@
-# computerservice
+# ComputerService
 
 ## Project setup
 ```
@@ -19,6 +19,7 @@ npm run build
 ```
 npm run lint
 ```
+Fronted available under: http://localhost:8080/
 
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
